@@ -25,6 +25,13 @@ def list_tasks(db: Session = Depends(get_db)):
 def update_task(task_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)):
     return crud.update_task(db, task_id, task)
 
+@router.patch("/{task_id}", response_model=schemas.Task)
+def patch_task(task_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)):
+    patched = crud.patch_task(db, task_id, task)
+    if not patched:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return patched
+
 @router.delete("/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     return crud.delete_task(db, task_id)

@@ -22,6 +22,21 @@ def update_task(db: Session, task_id: int, task_data: schemas.TaskCreate):
         db.commit()
     return task
 
+def patch_task(db: Session, task_id: int, task_data: schemas.TaskCreate):
+    task = get_task(db, task_id)
+    if not task:
+        return None
+
+    if task_data.title is not None:
+        task.title = task_data.title
+    if task_data.description is not None:
+        task.description = task_data.description
+
+    db.commit()
+    db.refresh(task)
+    return task
+
+
 def delete_task(db: Session, task_id: int):
     task = get_task(db, task_id)
     if task:

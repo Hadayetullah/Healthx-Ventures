@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 
 class TaskBase(BaseModel):
-    title: str
-    description: str
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 class TaskCreate(TaskBase):
     pass
