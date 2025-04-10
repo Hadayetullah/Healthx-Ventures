@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials 
 
 from app.database import SessionLocal
 from app.crud import get_user_by_username
@@ -8,7 +8,7 @@ from app.auth.jwt_handler import verify_password, create_access_token, decode_ac
 from app.models import User
 from app.schemas.user import UserCreate
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = HTTPBearer()
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -20,7 +20,7 @@ def get_db():
         db.close()
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(form_data: UserCreate, db: Session = Depends(get_db)):
     user = get_user_by_username(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
@@ -41,8 +41,8 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return {"message": "User created successfully"}
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    payload = decode_access_token(token)
+def get_current_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = decode_access_token(token.credentials)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
     user = db.query(get_user_by_username.__globals__['models'].User).get(int(payload["sub"]))
