@@ -42,6 +42,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 
 def get_current_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    # print("payload : ", token)
     payload = decode_access_token(token.credentials)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
