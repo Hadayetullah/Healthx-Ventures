@@ -21,6 +21,10 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db), user=De
 def list_tasks(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return crud.get_tasks(db, user.id)
 
+@router.get("/{task_id}", response_model=schemas.Task)
+def get_task(task_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    return crud.get_task_by_id(db, task_id, user.id)
+
 @router.put("/{task_id}", response_model=schemas.Task)
 def update_task(task_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     updated = crud.update_task(db, task_id, task, user.id)

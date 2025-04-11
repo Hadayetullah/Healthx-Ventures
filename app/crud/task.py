@@ -14,6 +14,9 @@ def create_task(db: Session, task: schemas.TaskCreate, user_id: int):
 def get_tasks(db: Session, user_id: int):
     return db.query(models.Task).filter(models.Task.owner_id == user_id).all()
 
+def get_task_by_id(db: Session, task_id: int, user_id: int):
+    return db.query(models.Task).filter(models.Task.id == task_id, models.Task.owner_id == user_id).first()
+
 def get_task(db: Session, task_id: int):
     return db.query(models.Task).filter(models.Task.id == task_id).first()
 
