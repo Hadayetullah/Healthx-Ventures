@@ -4,9 +4,9 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HT
 
 from app.database import SessionLocal
 from app.crud import get_user_by_username
-from app.auth.jwt_handler import verify_password, create_access_token, create_refresh_token, decode_access_token, get_password_hash
+from app.auth.jwt_handler import verify_password, create_access_token, create_refresh_token, decode_access_token, decode_refresh_token, get_password_hash
 from app.models import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, RefreshTokenRequest
 
 oauth2_scheme = HTTPBearer()
 
@@ -44,7 +44,24 @@ def login(form_data: UserCreate, db: Session = Depends(get_db)):
     return {
         "access_token": access_token, 
         "refresh_token": refresh_token, 
-        "token_type": "bearer"
+        # "token_type": "bearer"
+    }
+
+@router.post("/get-new-access-token")
+def refresh_token(data: RefreshTokenRequest, db: Session = Depends(get_db)):
+    payload = decode_refresh_token(data.refresh_token)
+
+    user_id = payload.get("sub")
+    # print("user_id : ", user_id)
+    user = db.query(User).get(int(user_id))
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    new_access_token = create_access_token({"sub": str(user.id)})
+
+    return {
+        "access_token": new_access_token,
+        # "token_type": "bearer"
     }
 
 def get_current_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):

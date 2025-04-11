@@ -1,5 +1,7 @@
 import bcrypt
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
+from fastapi import HTTPException
+
 from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
@@ -37,3 +39,11 @@ def decode_access_token(token: str):
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
         return None
+    
+def decode_refresh_token(token: str):
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired. Login again to get new tokens.")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
