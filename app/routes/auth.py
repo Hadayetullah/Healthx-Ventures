@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HT
 
 from app.database import SessionLocal
 from app.crud import get_user_by_username
-from app.auth.jwt_handler import verify_password, create_access_token, decode_access_token, get_password_hash
+from app.auth.jwt_handler import verify_password, create_access_token, create_refresh_token, decode_access_token, get_password_hash
 from app.models import User
 from app.schemas.user import UserCreate
 
@@ -37,8 +37,15 @@ def login(form_data: UserCreate, db: Session = Depends(get_db)):
     user = get_user_by_username(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token, 
+        "token_type": "bearer"
+    }
 
 def get_current_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     # print("payload : ", token)
