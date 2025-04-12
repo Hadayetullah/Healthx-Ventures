@@ -82,6 +82,10 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO tmp_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO tmp_user;
 ```
 
+```bash
+\q
+```
+
 # Project setup instruction
 
 - Create a folder and open command prompt in the folder.
@@ -96,10 +100,7 @@ git clone https://github.com/Hadayetullah/Healthx-Ventures.git
 ### Virtual environment setup:
 
 **If the virtual environment already not installed, please visit ->**
-
-```bash
 https://virtualenv.pypa.io/en/latest/installation.html
-```
 
 Create virtual environment, run:
 
